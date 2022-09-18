@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+<html>
+  <head>
+    <title>
+        {% block title %}Купить {{ item.name }} :: {{ block.super }}{% endblock %}
+    </title>
+  </head>
+  <body>
+    {% block content %}
+      <h1>{{ item.name }}</h1>
+      <p>{{ item.description }}</p>
+      <p>{{ item.price }}</p>
+      <button id="buy-button">Купить</button>
+      <script type="text/javascript">
+        var stripe = Stripe(stripe_pub_key);
+        var buyButton = document.getElementById('buy-button');
+        buyButton.addEventListener('click', function() {
+          // Create a new Checkout Session using the server-side endpoint 
+          // Redirect to Stripe Session Checkout
+          fetch("{% url 'buy_item' item.pk %}", {method: "POST"})
+          .then(response => return response.json())
+          .then(session => stripe.redirectToCheckout({ sessionId: session.id }))
+        });
+      </script>
+    {% endblock %}
+  </body>

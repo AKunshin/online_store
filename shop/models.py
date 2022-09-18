@@ -1,9 +1,8 @@
-from statistics import mode
-from tabnanny import verbose
 from django.db import models
 
-# Create your models here.
+
 class Item(models.Model):
+    """Модель товара"""
     name = models.CharField(max_length=150, verbose_name="Наименование")
     description = models.TextField(verbose_name="Описание")
     price = models.DecimalField(max_digits=10, decimal_places=2,verbose_name="Цена")

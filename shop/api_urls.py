@@ -3,6 +3,6 @@ from shop import api_views
 
 
 router = routers.DefaultRouter()
-router.register(r'items', api_views.ItemViewSet)
+router.register(r'item', api_views.ItemViewSet)
 
 urlpatterns = router.urls
