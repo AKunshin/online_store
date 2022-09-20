@@ -47,10 +47,9 @@ class ItemBuyView(View):
                 cancel_url=domain_url + 'cancel/',
                 payment_method_types=['card'],
                 mode='payment',
-
                 line_items=[{
                 'price_data': {
-                    'currency': 'rub',
+                    'currency': item.currency,
                     'product_data': {
                         'name': item.name,
                     },
