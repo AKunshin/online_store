@@ -48,12 +48,16 @@ class ItemBuyView(View):
                 payment_method_types=['card'],
                 mode='payment',
 
-                line_items=[
-                    {
-                    "price": "price_1LjOmXBs7ZepixRoMz3gru9o",
-                    "quantity": 1,
+                line_items=[{
+                'price_data': {
+                    'currency': 'rub',
+                    'product_data': {
+                        'name': item.name,
                     },
-                    ],
+                    'unit_amount': int(item.price * 100),
+                },
+                'quantity': 1,
+            }],
             )
         except Exception as e:
             return JsonResponse({'error': str(e)})

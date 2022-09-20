@@ -4,8 +4,8 @@ from payments.views import *
 
 urlpatterns = [
     path('', sync_products_view),
-    path('item/<int:pk>/', ItemView.as_view(), name="view_item"),
-    path('buy/<int:pk>/', ItemBuyView.as_view(), name="buy_item"),
+    path('item/<int:pk>', ItemView.as_view(), name="view_item"),
+    path('buy/<int:pk>', ItemBuyView.as_view(), name="buy_item"),
     path('success/', SuccessPayView.as_view(), name="success_pay"),
     path('cancel/', CancelPayView.as_view(), name="cancel_pay"),
 ]
