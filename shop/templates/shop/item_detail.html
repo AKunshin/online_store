@@ -1,61 +1,25 @@
 {% extends 'base.html' %}
+{% block title %}Купить {{ item.name }} :: {{ block.super }}{% endblock %}
 
-<html>
-  <head>
-    <title>
-      {% block title %}Купить {{ item.name }} :: {{ block.super }}{% endblock %}
-    </title>
-  </head>
-  <body>
-    {% block content %}
-    <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
-    <script src="https://js.stripe.com/v3/"></script>
-    <h1>{{ item.name }}</h1>
-    <p>{{ item.description }}</p>
-    <p>{{ item.price }}</p>
-    <button id="buy-button">Купить</button>
-    {% csrf_token %}
-    <script type="text/javascript">
-      const csrftoken = document.querySelector(
-        "[name=csrfmiddlewaretoken]"
-      ).value;
+{% block content %}
 
-      var stripe = Stripe("{{stripe_pub_key}}");
-      var buyButton = document.getElementById("buy-button");
-      buyButton.addEventListener("click", function () {
-        fetch("{% url 'buy_item' item.pk %}", {
-          method: "POST",
-          headers: {
-            "X-CSRFToken": csrftoken,
-          },
-        })
-          .then(function (response) {
-            return response.json();
-          })
-          .then(function (session) {
-            return stripe.redirectToCheckout({ sessionId: session.sessionId });
-          });
+<h1>{{ item.name }}</h1>
+<p>{{ item.description }}</p>
+<p>{{ item.price }}</p>
+<button id="buy-button">Купить</button>
+<script type="text/javascript">
+  var stripe = Stripe("{{stripe_pub_key}}");
+  var buyButton = document.getElementById("buy-button");
+  buyButton.addEventListener("click", function () {
+    // Create a new Checkout Session using the server-side endpoint
+    // Redirect to Stripe Session Checkout
+    fetch("{% url 'buy_item' item.pk %}", { method: "GET" })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (session) {
+        return stripe.redirectToCheckout({ sessionId: session.sessionId });
       });
-    </script>
-
-    <!-- 
-      <script type="text/javascript">
-        var stripe = Stripe('{{stripe_pub_key}}');
-        var buyButton = document.getElementById("buy-button");
-        buyButton.addEventListener('click', function() {
-          // Create a new Checkout Session using the server-side endpoint 
-          // Redirect to Stripe Session Checkout
-          fetch("{% url 'buy_item' item.pk %}", {method: "POST"})
-          .then(function (response) {
-                return response.json();
-            })
-            .then(function (session) {
-                return stripe.redirectToCheckout({ sessionId: session.sessionId });
-            })
-          // .then(response => response.json())
-          // .then(session => stripe.redirectToCheckout({ sessionId: session.id }))
-      });
-      </script> -->
-    {% endblock %}
-  </body>
-</html>
+  });
+</script>
+{% endblock %}
