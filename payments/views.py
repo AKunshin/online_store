@@ -1,6 +1,6 @@
 import stripe
 from django.http import HttpResponse, JsonResponse
-from django.views.generic import DetailView, View, TemplateView
+from django.views.generic import DetailView, View, TemplateView, ListView
 from django.conf import settings
 from shop.models import Item
 
@@ -9,22 +9,25 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 products = stripe.Product.list()
 prices = stripe.Price.list()
 
+class AllItemsView(ListView):
+    """Вывод списка товаров"""
+    model = Item
+    template_name = "shop/index.html"
+    context_object_name = "items"
 
-def sync_products_view(request):
-    '''Синхронизация товаров с stripe в БД'''
-    print(products)
-    print(prices)
-    # Приведение цены к float
-    for prod in products:
-        price_ = [x for x in prices.data if x.product == prod.id][0]
-        price = float(price_.unit_amount / 100)
-        print(price)
+    def sync_products_view(self, request):
+        '''Если товар был создан в stripe - создание в БД Django'''
+        # Приведение цены к float
+        for prod in products:
+            price_ = [x for x in prices.data if x.product == prod.id][0]
+            price = float(price_.unit_amount / 100)
 
-        obj, _ = Item.objects.get_or_create(name=prod.name)
-        obj.description = prod.description
-        obj.price = price
-        obj.save()
-    return HttpResponse("data")
+            # Запись товара в БД из stripe
+            obj, _ = Item.objects.get_or_create(name=prod.name)
+            obj.description = prod.description
+            obj.price = price
+            obj.save()
+
 
 
 class ItemView(DetailView):
