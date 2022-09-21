@@ -1,1 +1,19 @@
-Cancel!
+{% extends 'base.html' %}
+{% block content %}
+<div class="container text-center my-5">
+    <div class="row">
+        <div class="col-lg-6 col-md-8 mx-auto">
+            <h1 class="fw-light">Операция была отменена вами</h1>
+            <p class="lead text-muted">
+            Очень жаль, что вы отказались от покупки.
+            </p>
+            <a
+            href="/"
+            class="btn btn-primary"
+            title="Вернуться на главную"
+            >На главную
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

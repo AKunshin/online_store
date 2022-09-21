@@ -2,6 +2,7 @@ import stripe
 from django.http import HttpResponse, JsonResponse
 from django.views.generic import DetailView, View, TemplateView, ListView
 from django.conf import settings
+from django.shortcuts import render
 from shop.models import Item
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -15,22 +16,22 @@ class AllItemsView(ListView):
     template_name = "shop/index.html"
     context_object_name = "items"
 
-    def sync_products_view(self, request):
-        '''Если товар был создан в stripe - создание в БД Django'''
-        # Приведение цены к float
+    def get_queryset(self):
+        """Если товар был создан в stripe - создание в БД Django"""
         for prod in products:
+            # Приведение цены к float
             price_ = [x for x in prices.data if x.product == prod.id][0]
             price = float(price_.unit_amount / 100)
-
-            # Запись товара в БД из stripe
+            # Получить или создать товар
             obj, _ = Item.objects.get_or_create(name=prod.name)
             obj.description = prod.description
             obj.price = price
             obj.save()
-
-
-
+        return Item.objects.all()
+        
+    
 class ItemView(DetailView):
+    """Детальный просмотр товара"""
     model = Item
 
     def get_context_data(self, **kwargs):
@@ -40,6 +41,7 @@ class ItemView(DetailView):
 
 
 class ItemBuyView(View):
+    """Создание сессии с Stripe для обработки покупки выбранного товара"""
     def get(self, request, *args, **kwargs):
         item_id = self.kwargs["pk"]
         item = Item.objects.get(pk=item_id)
@@ -68,8 +70,10 @@ class ItemBuyView(View):
 
 
 class SuccessPayView(TemplateView):
+    """Инфо страница об успешной покупке"""
     template_name = "shop/success.html"
 
 
 class CancelPayView(TemplateView):
+    """Инфо страница об отказе от покупки"""
     template_name = "shop/cancel.html"
