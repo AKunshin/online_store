@@ -89,8 +89,6 @@ python manage.py createsuperuser
 # Запуск Docker
 ------
 ```
-git clone https://github.com/AKunshin/online_store.git
-cd online_store
 docker-compose build
 docker-compose up -d
 ```
