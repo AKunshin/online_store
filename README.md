@@ -65,6 +65,7 @@ python3 -m venv env
 .\env\Scripts\activate
 ```
 Необходимо создать файл .env и заполнить его своими данными, по образцу .env_example:
+(Т.к. проект тестовый, .env с реальными ключами уже в репо)
 
 ```
 SECRET_KEY = 'your_secret_key_for_django_settings'
@@ -85,6 +86,7 @@ python manage.py runserver
 ```
 python manage.py createsuperuser
 ```
+(В этом проекте администратор: admin. Пароль: 1234)
 
 # Запуск Docker
 ------
