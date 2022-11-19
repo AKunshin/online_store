@@ -1,6 +1,8 @@
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
+from decimal import Decimal
+from payments.service import exchange_to_rubles
 
 
 class Item(models.Model):
@@ -20,6 +22,16 @@ class Item(models.Model):
                                 default="rub",
                                 verbose_name="Валюта")
 
+    @property
+    def get_usd_currency(self):
+    # Свойство, для конвертации стоимости в USD по курсу ЦБ    
+        if self.currency == "usd":
+            self.price_usd = self.price
+            return self.price_usd
+        else:
+            self.price_usd = self.price / Decimal(exchange_to_rubles())
+            return self.price_usd
+
     def get_absolute_url(self):
         """Обратное построение адресов"""
         return reverse("view_item", kwargs={"pk": self.pk})
@@ -37,17 +49,14 @@ class Order(models.Model):
     item = models.ManyToManyField(Item,
                                   verbose_name="Товары",
                                   related_name="orders")
-    total_price = models.DecimalField(max_digits=10,
-                                      decimal_places=2, null=True,
-                                      default=1,
-                                      verbose_name="Итоговая сумма")
 
-    def save(self, *args, **kwargs):
-        """Переопределение поля для общей стоимости заказа"""
-        super().save(*args, **kwargs)
-        self.total_price = self.item.all().aggregate(Sum('price'))[
-            'price__sum']
-        return super().save(*args, **kwargs)
+
+    @property
+    def get_total_price(self):
+        # Свойство, для получения общей суммы заказа
+        self.total_price = self.item.aggregate(Sum('price'))[
+            'price__sum']        
+        return self.total_price
 
     def __str__(self):
         return f"Заказ {self.pk}"

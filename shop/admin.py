@@ -4,11 +4,9 @@ from .models import Item, Order
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
-    list_display = ['name', 'price', 'currency', 'id']
+    list_display = ['name', 'price', 'currency', 'id', 'get_usd_currency']
 
 
-admin.site.register(Order)
-
-# @admin.register(Order)
-# class Order(admin.ModelAdmin):
-#     pass
+@admin.register(Order)
+class Order(admin.ModelAdmin):
+    list_display=['id','get_total_price']
