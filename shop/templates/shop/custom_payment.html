@@ -1,11 +1,49 @@
-// This is your test publishable API key.
-const stripe = Stripe("{{stripe_pub_key}}");
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Оформить {{ order }} :: {{ block.super }}{% endblock %}
+
+{% block content %}
+
+  <body>
+    <!-- Display a payment form -->
+    <form id="payment-form">
+        {% csrf_token %}
+        <div id="payment-element">
+            <div class="card-body">
+                <h5 class="card-title">
+                  {{ order }}
+                </h5>
+                {% for item in items %}
+                <p class="card-text">
+                  {{ item.name }}
+                </p>
+                <p class="card-text">
+                  {{ item.price }} {{ item.get_rub_currency }}
+                </p>
+                {% endfor %}
+                <h3 class="card-text">
+                  {{ order.get_total_price }} RUB
+                </p>
+            </div>
+        <!--Stripe.js injects the Payment Element-->
+      </div>
+      <button id="submit">
+        <div class="spinner hidden" id="spinner"></div>
+        <span id="button-text">Pay now</span>
+      </button>
+      <div id="payment-message" class="hidden"></div>
+    </form>
+  </body>
+</html>
+
+<script type="text/javascript">
+    // This is your test publishable API key.
+var stripe = Stripe("{{stripe_pub_key}}");
 
 // The items the customer wants to buy
-// const items = [{ id: "xl-tshirt" }];
-const items = [{ id: "{{ order }}" }];
-
-let elements;
+var items = [{ id: "{{ order }}" }];
+var elements = stripe.elements();
+// let elements;
 
 initialize();
 checkStatus();
@@ -16,7 +54,7 @@ document
 
 // Fetches a payment intent and captures the client secret
 async function initialize() {
-  const response = await fetch("/create-payment-intent", {
+  const response = await fetch("{% url 'create-payment-intent' pk='15' %}", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ items }),
@@ -113,3 +151,5 @@ function setLoading(isLoading) {
     document.querySelector("#button-text").classList.remove("hidden");
   }
 }
+</script>
+{% endblock %}
