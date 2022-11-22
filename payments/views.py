@@ -9,6 +9,8 @@ from shop.forms import OrderForm
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
+customer = stripe.Customer.create()
+
 
 
 products = stripe.Product.list()
@@ -100,31 +102,6 @@ def add_to_order(request):
     return render(request, "shop/add_to_order.html", {'form': form})
 
 
-class StripeIntentView(View):
-    def post(self, request, *args, **kwargs):
-        if request.method == 'POST':
-            try:
-                data = json.loads(request.body)
-                order_id = self.kwargs["pk"]
-                order = Order.objects.get(id=order_id)
-                customer = stripe.Customer.create(email=data['email'])
-                intent =stripe.PaymentIntent.create(
-                    amount=order.get_total_price,
-                    currency='rub',
-                    payment_method_types=["card"],
-                    customer=customer['id'],
-                    confirm=True,
-                    metadata={
-                    "order_id": price.id
-                    }
-                    )
-                return JsonResponse({
-                    'clientSecret': intent['client_secret']
-                })
-            except Exception as e:
-                return JsonResponse({'error': str(e)})
-
-
 class OrderPaymentView(TemplateView):
     template_name = "shop/order_detail.html"
 
@@ -137,7 +114,40 @@ class OrderPaymentView(TemplateView):
         context.update({
             "items": items,
             "order": order,
+            "clientSecret": stripe_pub_key,
             "stripe_pub_key": stripe_pub_key
         })
         return context
+
+
+class StripeIntentView(View):
+    def post(self, request, *args, **kwargs):
+        if request.method == 'POST':
+            try:
+                data = json.loads(request.body)
+                order_id = self.kwargs["pk"]
+                order = Order.objects.get(id=order_id)
+                
+                # customer = stripe.Customer.create(email=data['email'])
+                intent =stripe.PaymentIntent.create(
+                    amount=int(order.get_total_price * 100),
+                    currency='rub',
+                    payment_method_types=["card"],
+                    # automatic_payment_methods={
+                    #                 'enabled': True,
+                    #                 },
+                    customer=customer['id'],
+                    confirm=True,
+                    metadata={
+                    "order_id": order.id
+                    }
+                    )
+                return JsonResponse({
+                    'clientSecret': intent['client_secret']
+                })
+            except Exception as e:
+                return JsonResponse({'error': str(e)})
+
+
+
         
