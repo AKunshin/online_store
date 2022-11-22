@@ -10,6 +10,6 @@ urlpatterns = [
     path('success/', SuccessPayView.as_view(), name="success_pay"),
     path('cancel/', CancelPayView.as_view(), name="cancel_pay"),
     path('add_to_order/', add_to_order, name="add_to_order"),
-    path('create-payment-intent/<pk>/', StripeIntentView.as_view(), name='create-payment-intent'),
-    path('custom-payment/', OrderPaymentView.as_view(), name='custom-payment')
+    path('create-payment-intent/<int:pk>/', StripeIntentView.as_view(), name='create-payment-intent'),
+    path('order/<int:pk>/', OrderPaymentView.as_view(), name="view_order"),
 ]

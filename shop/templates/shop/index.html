@@ -1,20 +1,33 @@
 {% extends 'base.html' %}
   {% block content %}
-    {% for item in items %}
-    <div class="container text-center my-5">
-      <div class="row">
-        <div class="col-lg-6 col-md-8 mx-auto">
-          <div class="card">
-            <div class="card-body">
+  <div class="container text-center my-5">
+    <div class="row">
+      <div class="col-lg-6 col-md-8 mx-auto">
+        {% for item in items %}
+        <div class="card">
+          <div class="card-body">
               <h5 class="card-title">{{ item.name }}</h5>
               <p class="card-text">{{ item.price }} {{ item.currency }}</p>
               <a href="{{ item.get_absolute_url }}" class="btn btn-primary">
-                Подробнее
+                Подробнее о товаре
               </a>
             </div>
           </div>
+          {% endfor %}
+          <h />
+    {% for order in orders %}
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">{{ order }}</h5>
+              <p class="card-text">{{ order.get_total_price }} RUB</p>
+              <a href="{{ order.get_absolute_url }}" class="btn btn-primary">
+                Посмотреть заказ
+              </a>
+            </div>
+          </div>
+    {% endfor %}
         </div>
       </div>
     </div>
-    {% endfor %}
+    
 {% endblock %}

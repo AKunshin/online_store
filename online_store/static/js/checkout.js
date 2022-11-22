@@ -1,9 +1,8 @@
 // This is your test publishable API key.
-const stripe = Stripe("{{stripe_pub_key}}");
+const stripe = Stripe("pk_test_51LjNT9Bs7ZepixRoVSCgg0knKsIXEkB40DkCuCrGTpwm8eGS2zFbukccwYXkCFFalyk4kz1pGrRHQbTaMeEwMOC200j0I0yQwP");
 
 // The items the customer wants to buy
 // const items = [{ id: "xl-tshirt" }];
-const items = [{ id: "{{ order }}" }];
 
 let elements;
 
@@ -28,7 +27,11 @@ async function initialize() {
   };
   elements = stripe.elements({ appearance, clientSecret });
 
-  const paymentElement = elements.create("payment");
+  const paymentElementOptions = {
+    layout: "tabs",
+  };
+
+  const paymentElement = elements.create("payment", paymentElementOptions);
   paymentElement.mount("#payment-element");
 }
 
