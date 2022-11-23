@@ -33,7 +33,7 @@ def exchange_to_rubles():
     request = requests.get(url, params)
     soup = BeautifulSoup(request.content, 'xml')
     dollar_exchange_rate = soup.find(ID='R01235').Value.string
-    dollar_exchange_rate = Decimal(dollar_exchange_rate.replace(',', '.'))
+    dollar_exchange_rate = Decimal(dollar_exchange_rate.replace(',', '.')).quantize(Decimal("1.00"))
     return dollar_exchange_rate
 
 
@@ -46,4 +46,5 @@ def get_total_price(items):
     if items.filter(currency="usd"):
         total_price_usd = items.filter(currency="usd").aggregate(Sum('price'))['price__sum'] * exchange_to_rubles()
     total_price = total_price_rub + total_price_usd
+    total_price = Decimal(total_price).quantize(Decimal("1.00"))
     return total_price
