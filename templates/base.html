@@ -5,14 +5,20 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" />
     <link rel="stylesheet" href="{% static 'css/checkout.css' %}" />
     <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
     <script src="https://js.stripe.com/v3/"></script>
-    <!-- <script src="{% static 'js/checkout.js' %}"></script>     -->
-    <title>{% block title %}Крутой Online-Магазин{% endblock %}</title>
+    <title>
+      {% block title %}
+      Крутой Online-Магазин
+      {% endblock %}
+    </title>
   </head>
   <body>
-    {% block content %} CONTENT {% endblock %}
+    {% include 'inc/_navbar.html' %}
+    {% block content %}
+     CONTENT 
+     {% endblock %}
   </body>
 </html>

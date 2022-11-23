@@ -6,7 +6,7 @@
         <div class="col-lg-6 col-md-8 mx-auto">
           <div class="card">
                 <div class="card-body">
-                    <form action="{% url 'view_order' order.pk %}}" method="post">
+                    <form action="{{ order.get_absolute_url }}" method="post">
                         {% csrf_token %}
                         {{ form.as_p }}
                         <div class="d-grid gap-2">

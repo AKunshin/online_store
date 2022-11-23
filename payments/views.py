@@ -34,11 +34,16 @@ class AllItemsView(ListView):
             obj.save()
         return Item.objects.all()
 
-    def get_context_data(self, **kwargs):
-        """Вывод списка заказов"""
-        context = super().get_context_data(**kwargs)
-        context['orders'] = Order.objects.all()
-        return context
+    # def get_context_data(self, **kwargs):
+    #     """Вывод списка заказов"""
+    #     context = super().get_context_data(**kwargs)
+    #     context['orders'] = Order.objects.all()
+    #     return context
+
+class OrderListView(ListView):
+    model = Order
+    template_name = "shop/order_list.html"
+    context_object_name = "orders"
 
 
 class ItemView(DetailView):
@@ -97,7 +102,7 @@ def add_to_order(request):
         form = OrderForm(request.POST)
         if form.is_valid():
             order = form.save()
-            return redirect("view_order")
+            return redirect("orders_list")
     else:
         form = OrderForm()
     return render(request, "shop/add_to_order.html", {'form': form})
