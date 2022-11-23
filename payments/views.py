@@ -137,7 +137,7 @@ class StripeIntentView(View):
                     #                 'enabled': True,
                     #                 },
                     customer=customer['id'],
-                    confirm=True,
+                    # confirm=True,
                     metadata={
                     "order_id": order.id
                     }
