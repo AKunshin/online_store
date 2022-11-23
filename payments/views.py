@@ -1,6 +1,6 @@
-import stripe
 import json
-from django.http import HttpResponse, JsonResponse
+import stripe
+from django.http import JsonResponse
 from django.views.generic import DetailView, View, TemplateView, ListView
 from django.conf import settings
 from django.shortcuts import render, redirect
@@ -11,10 +11,9 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 customer = stripe.Customer.create()
 
-
-
 products = stripe.Product.list()
 prices = stripe.Price.list()
+
 
 class AllItemsView(ListView):
     """Вывод списка товаров"""
@@ -36,11 +35,12 @@ class AllItemsView(ListView):
         return Item.objects.all()
 
     def get_context_data(self, **kwargs):
+        """Вывод списка заказов"""
         context = super().get_context_data(**kwargs)
         context['orders'] = Order.objects.all()
         return context
-        
-    
+
+
 class ItemView(DetailView):
     """Детальный просмотр товара"""
     model = Item
@@ -53,6 +53,7 @@ class ItemView(DetailView):
 
 class ItemBuyView(View):
     """Создание сессии с Stripe для обработки покупки выбранного товара"""
+
     def get(self, request, *args, **kwargs):
         item_id = self.kwargs["pk"]
         item = Item.objects.get(pk=item_id)
@@ -61,18 +62,18 @@ class ItemBuyView(View):
             checkout_session = stripe.checkout.Session.create(
                 success_url=domain_url + 'success/',
                 cancel_url=domain_url + 'cancel/',
-                payment_method_types=['card'],
+                # payment_method_types=['card'],
                 mode='payment',
                 line_items=[{
-                'price_data': {
-                    'currency': item.currency,
-                    'product_data': {
-                        'name': item.name,
+                    'price_data': {
+                        'currency': item.currency,
+                        'product_data': {
+                            'name': item.name,
+                        },
+                        'unit_amount': int(item.price * 100),
                     },
-                    'unit_amount': int(item.price * 100),
-                },
-                'quantity': 1,
-            }],
+                    'quantity': 1,
+                }],
             )
         except Exception as e:
             return JsonResponse({'error': str(e)})
@@ -91,7 +92,7 @@ class CancelPayView(TemplateView):
 
 
 def add_to_order(request):
-    # Добавить товар в заказ
+    """Форма создания заказа"""
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
@@ -103,6 +104,7 @@ def add_to_order(request):
 
 
 class OrderPaymentView(TemplateView):
+    """Страница оплаты заказа"""
     template_name = "shop/order_detail.html"
 
     def get_context_data(self, **kwargs):
@@ -121,33 +123,28 @@ class OrderPaymentView(TemplateView):
 
 
 class StripeIntentView(View):
+    """Создание PaymntIntent - загрузка формы оплаты на страницу"""
     def post(self, request, *args, **kwargs):
         if request.method == 'POST':
             try:
-                data = json.loads(request.body)
+                req_json = json.loads(request.body)
+                items = req_json['items']
                 order_id = self.kwargs["pk"]
                 order = Order.objects.get(id=order_id)
-                
-                # customer = stripe.Customer.create(email=data['email'])
-                intent =stripe.PaymentIntent.create(
+
+                intent = stripe.PaymentIntent.create(
                     amount=int(order.get_total_price * 100),
                     currency='rub',
-                    payment_method_types=["card"],
-                    # automatic_payment_methods={
-                    #                 'enabled': True,
-                    #                 },
+                    automatic_payment_methods={
+                        'enabled': True,
+                    },
                     customer=customer['id'],
-                    # confirm=True,
                     metadata={
-                    "order_id": order.id
+                        "order_id": order.id
                     }
-                    )
+                )
                 return JsonResponse({
                     'clientSecret': intent['client_secret']
                 })
             except Exception as e:
                 return JsonResponse({'error': str(e)})
-
-
-
-        
