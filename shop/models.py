@@ -47,6 +47,9 @@ class Order(models.Model):
     items = models.ManyToManyField(Item,
                                   verbose_name="Товары")
 
+    def get_absolute_url(self):
+        """Обратное построение адресов"""
+        return reverse("view_order", kwargs={"pk": self.pk})
 
     @property
     def get_total_price(self):

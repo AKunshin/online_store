@@ -12,6 +12,7 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 products = stripe.Product.list()
 prices = stripe.Price.list()
 
+
 class AllItemsView(ListView):
     """Вывод списка товаров"""
     model = Item
@@ -30,8 +31,8 @@ class AllItemsView(ListView):
             obj.price = price
             obj.save()
         return Item.objects.all()
-        
-    
+
+
 class ItemView(DetailView):
     """Детальный просмотр товара"""
     model = Item
@@ -44,6 +45,7 @@ class ItemView(DetailView):
 
 class ItemBuyView(View):
     """Создание сессии с Stripe для обработки покупки выбранного товара"""
+
     def get(self, request, *args, **kwargs):
         item_id = self.kwargs["pk"]
         item = Item.objects.get(pk=item_id)
@@ -55,15 +57,15 @@ class ItemBuyView(View):
                 payment_method_types=['card'],
                 mode='payment',
                 line_items=[{
-                'price_data': {
-                    'currency': item.currency,
-                    'product_data': {
-                        'name': item.name,
+                    'price_data': {
+                        'currency': item.currency,
+                        'product_data': {
+                            'name': item.name,
+                        },
+                        'unit_amount': int(item.price * 100),
                     },
-                    'unit_amount': int(item.price * 100),
-                },
-                'quantity': 1,
-            }],
+                    'quantity': 1,
+                }],
             )
         except Exception as e:
             return JsonResponse({'error': str(e)})
@@ -81,8 +83,9 @@ class CancelPayView(TemplateView):
     template_name = "shop/cancel.html"
 
 
-def add_to_order(request):
+def add_to_order(request, **kwargs):
     # Добавить товар в заказ
+    stripe_pub_key = settings.STRIPE_PUBLISHABLE_KEY,
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
@@ -90,46 +93,70 @@ def add_to_order(request):
             return redirect('home')
     else:
         form = OrderForm()
-    return render(request, "shop/add_to_order.html", {'form': form})
+    return render(request, "shop/add_to_order.html", {'form': form, "stripe_pub_key": stripe_pub_key})
 
 
-class StripeIntentView(View):
-    def post(self, request, *args, **kwargs):
-        order_id = self.kwargs["pk"]
-        price = Order.objects.get(id=order_id)
-        
-        stripe.PaymentIntent.create(
-        amount=price.get_total_price,
-        currency="rub",
-        payment_method_types=["card"],
-        )
-
-        #     req_json = json.loads(request.body)
-        #     intent = stripe.PaymentIntent.create(
-        #         currency='rub',
-        #         metadata={
-        #             "price_id": price.id
-        #         }
-        #     )
-        #     return JsonResponse({
-        #         'clientSecret': intent['client_secret']
-        #     })
-        # except Exception as e:
-        #     return JsonResponse({'error': str(e)})
-
-
-
-class OrderPaymentView(TemplateView):
-    template_name = "shop/custom_payment.html"
+class OrderPaymentView(View):
+    """Инфо страница об успешной покупке"""
+    template_name = "shop/order_detail.html"
 
     def get_context_data(self, **kwargs):
-        order = Order.objects.get(pk=15)
+        order_id = self.kwargs["pk"]
+        order = Order.objects.get(id=order_id)
         items = order.items.all()
         context = super().get_context_data(**kwargs)
         context.update({
             "items": items,
             "order": order,
-            "stripe_pub_key": settings.STRIPE_PUBLISHABLE_KEY
+            "stripe_pub_key": settings.STRIPE_PUBLISHABLE_KEY,
+        })
+        return context
+
+
+    # def post(self, request, *args, **kwargs):
+    #     order_id = self.kwargs["pk"]
+    #     price = Order.objects.get(id=order_id)
+    #     try:
+    #         intent = stripe.PaymentIntent.create(
+    #             amount=price.get_total_price,
+    #             currency="rub",
+    #             payment_method_types=["card"],
+    #         )
+
+    #         # req_json = json.loads(request.body)
+    #         # intent = stripe.PaymentIntent.create(
+    #         #     currency='rub',
+    #         #     metadata={
+    #         #         "price_id": price.id
+    #         #     }
+    #         # )
+    #         return JsonResponse({
+    #             'clientSecret': intent['client_secret']
+    #         })
+    #     except Exception as e:
+    #         return JsonResponse({'error': str(e)})
+
+
+class StripeIntentView(TemplateView):
+    # template_name = "shop/custom_payment.html"
+
+
+    def get_context_data(self, **kwargs):
+        order_id = self.kwargs["pk"]
+        order = Order.objects.get(id=order_id)
+        items = order.items.all()
+        context = super().get_context_data(**kwargs)
+        intent = stripe.PaymentIntent.create(
+            amount=int(order.get_total_price * 100),
+            currency="rub",
+            payment_method_types=["card"],
+        )
+        client_secret=intent.client_secret
+        context.update({
+            "items": items,
+            "order": order,
+            # "stripe_pub_key": settings.STRIPE_PUBLISHABLE_KEY,
+            "client_secret": client_secret,
         })
         return context
 
