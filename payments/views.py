@@ -20,6 +20,7 @@ class AllItemsView(ListView):
     model = Item
     template_name = "shop/index.html"
     context_object_name = "items"
+    paginate_by = 4
 
     def get_queryset(self):
         """Если товар был создан в stripe - создание в БД Django"""
@@ -34,16 +35,12 @@ class AllItemsView(ListView):
             obj.save()
         return Item.objects.all()
 
-    # def get_context_data(self, **kwargs):
-    #     """Вывод списка заказов"""
-    #     context = super().get_context_data(**kwargs)
-    #     context['orders'] = Order.objects.all()
-    #     return context
 
 class OrderListView(ListView):
     model = Order
     template_name = "shop/order_list.html"
     context_object_name = "orders"
+    paginate_by = 4
 
 
 class ItemView(DetailView):
@@ -67,7 +64,6 @@ class ItemBuyView(View):
             checkout_session = stripe.checkout.Session.create(
                 success_url=domain_url + 'success/',
                 cancel_url=domain_url + 'cancel/',
-                # payment_method_types=['card'],
                 mode='payment',
                 line_items=[{
                     'price_data': {
