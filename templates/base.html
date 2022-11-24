@@ -24,17 +24,17 @@
     <title>
       {% block title %}
       Крутой Online-Магазин
-      {% endblock %}
+      {% endblock title %}
     </title>
   </head>
   <body>
-    {% include 'inc/_navbar.html' %}
+    {% include "inc/_navbar.html" %}
     {% block content %}
      CONTENT 
-    {% endblock %}
+    {% endblock content %}
     <div class="row">
       <div class="col-md-3 mx-auto">
-        {% include 'inc/_pagination.html' %}
+        {% include "inc/_pagination.html" %}
       </div>
   </div>
   </body>

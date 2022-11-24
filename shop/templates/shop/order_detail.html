@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 {% block content %}
   <div class="container text-center my-5">
@@ -6,7 +6,7 @@
       <div class="col-lg-6 col-md-8 mx-auto">
         <div class="card">
           <div class="card-body">
-            <h2 class="card-title">{{ order }}</h5>
+            <h2 class="card-title">{{ order }}</h2>
 
             {% for item in items %}
               <li class="card-text">
@@ -16,7 +16,7 @@
 
             <h3 class="card-text">
               Сумма заказа: {{ order.get_total_price }} руб.
-            </p>
+            </h3>
 
             <form id="payment-form">
               <div id="payment-element">
@@ -94,7 +94,7 @@ async function handleSubmit(e) {
     elements,
     confirmParams: {
       // Make sure to change this to your payment completion page
-      return_url: "http://localhost:8000/success/",
+      return_url: "{{ domain_url }}" + "success/",
     },
   });
 
@@ -168,4 +168,4 @@ function setLoading(isLoading) {
   }
 }
   </script>
-{% endblock %}
+{% endblock content %}
