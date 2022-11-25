@@ -1,3 +1,20 @@
 from django.db import models
 
-# Create your models here.
+
+class Discount(models.Model):
+    """Модель скидки"""
+    DURATION = (
+        ("once", "ONCE"),
+        ("forever", "FOREVER"),
+        ("repeating", "REPEATING"),
+    )
+    name = models.CharField(max_length=20,
+                            verbose_name="Название купона")
+    percent_off = models.IntegerField(
+        max_length=3,
+        verbose_name="Процент скидки")
+    duration = models.CharField(
+        max_length=20,
+        choices=DURATION,
+        default="once",
+        verbose_name="Срок действия")

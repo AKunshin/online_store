@@ -1,11 +1,16 @@
 import json
 import stripe
+import os
+from dotenv import load_dotenv
 from django.http import JsonResponse
 from django.views.generic import DetailView, View, TemplateView, ListView
 from django.conf import settings
 from django.shortcuts import render, redirect
 from shop.models import Item, Order
 from shop.forms import OrderForm
+from .models import Discount
+
+load_dotenv()
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -14,7 +19,7 @@ customer = stripe.Customer.create()
 products = stripe.Product.list()
 prices = stripe.Price.list()
 
-domain_url = "http://localhost:8000/"
+domain_url = str(os.getenv('DOMAIN_URL'))
 
 
 class AllItemsView(ListView):
@@ -152,3 +157,13 @@ class StripeIntentView(View):
                 })
             except Exception as e:
                 return JsonResponse({"error": str(e)})
+
+
+def create_promocode(request):
+    """Функция для создания промокола в Stripe"""
+    stripe.PromotionCode.create(
+            coupon="ZQO00CcH",
+            code="ALICE20",
+            customer="cus_4fdAW5ftNQow1a",
+            )
+    pass
