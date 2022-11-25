@@ -1,20 +1,24 @@
 import json
 import stripe
+import os
 from django.http import JsonResponse
 from django.views.generic import DetailView, View, TemplateView, ListView
 from django.conf import settings
 from django.shortcuts import render, redirect
+from dotenv import load_dotenv
 from shop.models import Item, Order
 from shop.forms import OrderForm
+
+load_dotenv()
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 customer = stripe.Customer.create()
-
 products = stripe.Product.list()
 prices = stripe.Price.list()
 
-domain_url = "http://localhost:8000/"
+
+domain_url = str(os.getenv('DOMAIN_URL'))
 
 
 class AllItemsView(ListView):
