@@ -76,6 +76,7 @@ class ItemBuyView(View):
                     },
                     "quantity": 1,
                 }],
+                allow_promotion_codes=True,
             )
         except Exception as e:
             return JsonResponse({"error": str(e)})
