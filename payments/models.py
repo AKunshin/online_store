@@ -11,7 +11,6 @@ class Discount(models.Model):
     name = models.CharField(max_length=20,
                             verbose_name="Название купона")
     percent_off = models.IntegerField(
-        max_length=3,
         verbose_name="Процент скидки")
     duration = models.CharField(
         max_length=20,
