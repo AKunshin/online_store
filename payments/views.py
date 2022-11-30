@@ -22,38 +22,6 @@ prices = stripe.Price.list()
 domain_url = str(os.getenv('DOMAIN_URL'))
 
 
-
-
-
-def create_promocode():
-    """Функция для создания промокода в Stripe"""
-    coupons = Discount.objects.all()
-    if coupons.count() >= 1:
-        coupon_list = stripe.Coupon.list(limit=3)
-        try:
-            for coupon in coupons:
-                for stripe_coupon in coupon_list:
-                    if not coupon.percent_off == stripe_coupon.percent_off:
-                        coupon_stripe = stripe.Coupon.create(
-                                percent_off=coupon.percent_off,
-                                duration=coupon.duration,
-                                )
-                        print(f"Create {coupon_stripe.id}")
-                        print(f"All coupons {coupon_list}")
-                        promocode_stripe = stripe.PromotionCode.create(
-                            coupon=str(coupon_stripe.id),
-                            code=str(coupon.name),
-                            # customer=customer,
-                        )
-                        print(f"Создан купон {coupon_stripe.id}, {promocode_stripe.code}")
-                    else:
-                        raise Exception("Купон с такой скидкой уже есть")
-        except Exception as e:
-            print(f"Exception by create discount {e}")
-    else:
-        print("В БД не найдено ни одного купона")
-
-
 class AllItemsView(ListView):
     """Вывод списка товаров"""
     model = Item
@@ -72,7 +40,6 @@ class AllItemsView(ListView):
             obj.description = prod.description
             obj.price = price
             obj.save()
-            create_promocode()
         return Item.objects.all()
 
 
