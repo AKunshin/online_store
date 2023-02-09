@@ -1,4 +1,3 @@
-from decimal import Decimal
 from django.db import models
 from django.urls import reverse
 from payments.service import exchange_to_rubles, get_total_price
@@ -23,7 +22,7 @@ class Item(models.Model):
 
     @property
     def get_rub_currency(self):
-    # Свойство, для конвертации стоимости в RUB по курсу ЦБ    
+        """Свойство, для конвертации стоимости в RUB по курсу ЦБ"""
         if self.currency == "USD":
             self.price_rub = self.price * round(exchange_to_rubles(), 2)
             return self.price_rub
@@ -54,7 +53,7 @@ class Order(models.Model):
 
     @property
     def get_total_price(self):
-        # Свойство, для получения общей суммы заказа
+        """Свойство, для получения общей суммы заказа"""
         self.total_price = get_total_price(self.items.all())
         return self.total_price
 
