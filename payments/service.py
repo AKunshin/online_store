@@ -1,7 +1,6 @@
 import requests
 from datetime import datetime
 import pytz
-from loguru import logger
 from bs4 import BeautifulSoup
 from decimal import Decimal
 from django.db.models import Sum

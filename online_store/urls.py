@@ -16,7 +16,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from rest_framework import routers
+from shop.views import ItemViewSet, OrderViewSet
+
+
+router = routers.SimpleRouter()
+
+router.register(r"shop", ItemViewSet)
+router.register(r"order", OrderViewSet)
+
+
 urlpatterns = [
     path('', include('payments.urls')),
     path('admin/', admin.site.urls),
+    path('api/', include(router.urls)),
 ]
