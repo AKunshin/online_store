@@ -17,17 +17,18 @@ from django.contrib import admin
 from django.urls import path, include
 
 from rest_framework import routers
-from shop.views import ItemViewSet, OrderViewSet
+from shop.views import OrderViewSet
+from shop.views import api_buy_item
 
 
 router = routers.SimpleRouter()
 
-router.register(r"shop", ItemViewSet)
 router.register(r"order", OrderViewSet)
 
 
 urlpatterns = [
     path('', include('payments.urls')),
     path('admin/', admin.site.urls),
+    path('api/buy/<int:pk>', api_buy_item, name="api_buy_item"),
     path('api/', include(router.urls)),
 ]
