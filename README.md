@@ -102,6 +102,10 @@ python manage.py createsuperuser
 
 # Запуск Docker
 ------
+## Изменился синтаксис docker compose
+## Для выполнения команд, может потребоваться использовать docker compose (раздельно)
+## вместо docker-compose
+
 ```
 docker-compose build
 docker-compose up -d
