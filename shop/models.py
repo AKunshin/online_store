@@ -1,15 +1,15 @@
-from decimal import Decimal
 from django.db import models
 from django.urls import reverse
+
 from payments.service import exchange_to_rubles, get_total_price
 
 
 class Item(models.Model):
     """Модель товара"""
     CURRENCY = (
-                ("rub", 'RUB'),
-                ("usd", 'USD'),
-                )
+        ("rub", 'RUB'),
+        ("usd", 'USD'),
+    )
     name = models.CharField(max_length=150, verbose_name="Наименование")
     description = models.TextField(verbose_name="Описание")
     price = models.DecimalField(max_digits=10,
@@ -23,7 +23,7 @@ class Item(models.Model):
 
     @property
     def get_rub_currency(self):
-    # Свойство, для конвертации стоимости в RUB по курсу ЦБ    
+        """Свойство, для конвертации стоимости в RUB по курсу ЦБ"""
         if self.currency == "USD":
             self.price_rub = self.price * round(exchange_to_rubles(), 2)
             return self.price_rub
@@ -47,17 +47,16 @@ class Item(models.Model):
 class Order(models.Model):
     """Модель заказа товара"""
     items = models.ManyToManyField(Item,
-                                  verbose_name="Товары")
+                                   verbose_name="Товары")
 
     def get_absolute_url(self):
         return reverse("view_order", kwargs={"pk": self.pk})
 
     @property
     def get_total_price(self):
-        # Свойство, для получения общей суммы заказа
+        """Свойство, для получения общей суммы заказа"""
         self.total_price = get_total_price(self.items.all())
         return self.total_price
-
 
     def __str__(self):
         return f"Заказ {self.pk}"

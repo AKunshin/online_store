@@ -1,15 +1,17 @@
+# import os
 import json
 import stripe
-import os
+
 from django.http import JsonResponse
 from django.views.generic import DetailView, View, TemplateView, ListView
 from django.conf import settings
 from django.shortcuts import render, redirect
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
+
 from shop.models import Item, Order
 from shop.forms import OrderForm
 
-load_dotenv()
+# load_dotenv()
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -18,7 +20,7 @@ products = stripe.Product.list()
 prices = stripe.Price.list()
 
 
-domain_url = str(os.getenv('DOMAIN_URL'))
+domain_url = settings.DOMAIN_URL
 
 
 class AllItemsView(ListView):
@@ -64,7 +66,7 @@ class ItemBuyView(View):
 
     def get(self, request, *args, **kwargs):
         item_id = self.kwargs["pk"]
-        item = Item.objects.get(pk=item_id)        
+        item = Item.objects.get(pk=item_id)
         try:
             checkout_session = stripe.checkout.Session.create(
                 success_url=domain_url + "success/",
@@ -80,6 +82,7 @@ class ItemBuyView(View):
                     },
                     "quantity": 1,
                 }],
+                allow_promotion_codes=True,
             )
         except Exception as e:
             return JsonResponse({"error": str(e)})
@@ -102,7 +105,7 @@ def add_to_order(request):
     if request.method == "POST":
         form = OrderForm(request.POST)
         if form.is_valid():
-            order = form.save()
+            form.save()
             return redirect("orders_list")
     else:
         form = OrderForm()
@@ -131,6 +134,7 @@ class OrderPaymentView(TemplateView):
 
 class StripeIntentView(View):
     """Создание PaymntIntent - загрузка формы оплаты на страницу"""
+
     def post(self, request, *args, **kwargs):
         if request.method == "POST":
             try:
