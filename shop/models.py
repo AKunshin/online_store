@@ -1,5 +1,8 @@
+from decimal import Decimal
 from django.db import models
 from django.urls import reverse
+
+from payments.models import Discount
 
 from payments.service import exchange_to_rubles, get_total_price
 
@@ -46,8 +49,12 @@ class Item(models.Model):
 
 class Order(models.Model):
     """Модель заказа товара"""
-    items = models.ManyToManyField(Item,
-                                   verbose_name="Товары")
+    items = models.ManyToManyField(Item, verbose_name="Товары")
+    discounts = models.ForeignKey(Discount,
+                                  on_delete=models.SET_NULL,
+                                  null=True,
+                                  blank=True,
+                                  verbose_name="Скидка")
 
     def get_absolute_url(self):
         return reverse("view_order", kwargs={"pk": self.pk})
@@ -55,7 +62,11 @@ class Order(models.Model):
     @property
     def get_total_price(self):
         """Свойство, для получения общей суммы заказа"""
-        self.total_price = get_total_price(self.items.all())
+        if self.discounts:
+            self.total_price = get_total_price(
+                self.items.all()) * Decimal((100 - self.discounts.percent_off) / 100)
+        else:
+            self.total_price = get_total_price(self.items.all())
         return self.total_price
 
     def __str__(self):

@@ -1,4 +1,3 @@
-import os
 import requests
 import pytz
 import stripe
@@ -6,13 +5,12 @@ import stripe
 from datetime import datetime
 from bs4 import BeautifulSoup
 from decimal import Decimal
-from dotenv import load_dotenv
 
+from django.conf import settings
 from django.db.models import Sum
 
-load_dotenv()
 
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 def get_current_date() -> str:
@@ -50,9 +48,3 @@ def get_total_price(items) -> Decimal:
     total_price = total_price_rub + total_price_usd
     total_price = Decimal(total_price).quantize(Decimal("1.00"))
     return total_price
-
-
-def create_stripe_coupon(id, percent_off, duration):
-    """Функция для создания купона в Stripe"""
-    stripe.Coupon.create(duration=duration, id=id, percent_off=percent_off)
-    pass
