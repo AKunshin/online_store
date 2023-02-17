@@ -2,9 +2,8 @@ from decimal import Decimal
 from django.db import models
 from django.urls import reverse
 
-from payments.models import Discount
-
 from payments.service import exchange_to_rubles, get_total_price
+from payments.models import Discount
 
 
 class Item(models.Model):
@@ -25,14 +24,13 @@ class Item(models.Model):
                                 verbose_name="Валюта")
 
     @property
-    def get_rub_currency(self):
+    def get_rub_currency(self) -> Decimal:
         """Свойство, для конвертации стоимости в RUB по курсу ЦБ"""
-        if self.currency == "USD":
-            self.price_rub = self.price * round(exchange_to_rubles(), 2)
-            return self.price_rub
+        if self.currency == "usd":
+            self.price_rub = self.price * exchange_to_rubles()
         else:
             self.price_rub = self.price
-            return self.price_rub
+        return self.price_rub.quantize(Decimal("1.00"))
 
     def get_absolute_url(self):
         """Обратное построение адресов"""
@@ -60,14 +58,14 @@ class Order(models.Model):
         return reverse("view_order", kwargs={"pk": self.pk})
 
     @property
-    def get_total_price(self):
+    def get_total_price(self) -> Decimal:
         """Свойство, для получения общей суммы заказа"""
         if self.discounts:
             self.total_price = get_total_price(
                 self.items.all()) * Decimal((100 - self.discounts.percent_off) / 100)
         else:
             self.total_price = get_total_price(self.items.all())
-        return self.total_price
+        return self.total_price.quantize(Decimal("1.00"))
 
     def __str__(self):
         return f"Заказ {self.pk}"
