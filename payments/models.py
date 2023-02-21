@@ -19,8 +19,8 @@ class Discount(models.Model):
         verbose_name="Срок действия")
 
     def __str__(self) -> str:
-        return f"{self.percent_off}%"
+        return self.name
 
     class Meta:
-        verbose_name = "Скидка"
-        verbose_name_plural = "Скидки"
+        verbose_name = "Промокод"
+        verbose_name_plural = "Промокоды"
