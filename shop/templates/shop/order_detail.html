@@ -1,8 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+  <div class="container text-center my-5">
+    <div class="row">
+      <div class="col-lg-6 col-md-8 mx-auto">
+        <div class="card">
+          <div class="card-body">
+            <h2 class="card-title">{{ order }}</h2>
+
+            {% for item in items %}
+              <li class="card-text">
+                {{ item.name }} {{ item.price }} {{ item.currency }}
+              </li>
+            {% endfor %}
+
+            <h3 class="card-text">
+              Сумма заказа: {{ order.get_total_price }} руб.
+            </h3>
+
+            <form id="payment-form">
+              <div id="payment-element">
+                <!--Stripe.js injects the Payment Element-->
+              </div>
+              <button id="submit">
+                <div class="spinner hidden" id="spinner"></div>
+                <span id="button-text">Оплатить заказ</span>
+              </button>
+              <div id="payment-message" class="hidden"></div>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% csrf_token %}
+<script type="text/javascript">
+const csrftoken = '{{ csrf_token }}';
+
 // This is your test publishable API key.
-const stripe = Stripe("pk_test_51LjNT9Bs7ZepixRoVSCgg0knKsIXEkB40DkCuCrGTpwm8eGS2zFbukccwYXkCFFalyk4kz1pGrRHQbTaMeEwMOC200j0I0yQwP");
+const stripe = Stripe("{{ stripe_pub_key }}");
 
 // The items the customer wants to buy
-// const items = [{ id: "xl-tshirt" }];
+const items = [{
+    {% for item in items %}        
+      id:'{{ item.name }}',
+    {% endfor %}
+    }];
+        
+
 
 let elements;
 
@@ -15,9 +61,13 @@ document
 
 // Fetches a payment intent and captures the client secret
 async function initialize() {
-  const response = await fetch("/create-payment-intent", {
+  const response = await fetch("{% url 'create-payment-intent' order.pk %}", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+        "Content-Type": "application/json",
+        'X-CSRFToken': csrftoken
+    },
+
     body: JSON.stringify({ items }),
   });
   const { clientSecret } = await response.json();
@@ -25,6 +75,7 @@ async function initialize() {
   const appearance = {
     theme: 'stripe',
   };
+  
   elements = stripe.elements({ appearance, clientSecret });
 
   const paymentElementOptions = {
@@ -43,7 +94,7 @@ async function handleSubmit(e) {
     elements,
     confirmParams: {
       // Make sure to change this to your payment completion page
-      return_url: "http://localhost:4242/checkout.html",
+      return_url: "{{ domain_url }}" + "success/",
     },
   });
 
@@ -116,3 +167,5 @@ function setLoading(isLoading) {
     document.querySelector("#button-text").classList.remove("hidden");
   }
 }
+  </script>
+{% endblock content %}

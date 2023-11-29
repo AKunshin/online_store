@@ -1,43 +1,33 @@
-{% extends 'base.html' %}
-{% block title %}Купить {{ item.name }} :: {{ block.super }}{% endblock %}
-
+{% extends "base.html" %}
+{% block title %}Купить {{ item.name }} :: {{ block.super }}{% endblock title %}
 {% block content %}
   <div class="container text-center my-5">
     <div class="row">
       <div class="col-lg-6 col-md-8 mx-auto">
         <div class="card">
           <div class="card-body">
-              <h5 class="card-title">
-                {{ item.name }}
-              </h5>
-              <p class="card-text">
-                {{ item.description }}
-              </p>
-              <h3 class="card-text">
-                {{ item.price }} {{ item.currency }}
-              </p>
-              <button class="btn btn-primary" id="buy-button">
-                Купить
-              </button>
-            </div>
+            <h5 class="card-title">{{ item.name }}</h5>
+            <p class="card-text">{{ item.description }}</p>
+            <h3 class="card-text">{{ item.price }} {{ item.currency }}</h3>
+            <button class="btn btn-primary" id="buy-button">Купить</button>
           </div>
         </div>
       </div>
     </div>
   </div>
   <script type="text/javascript">
-    var stripe = Stripe("{{stripe_pub_key}}");
-    var buyButton = document.getElementById("buy-button");
-    buyButton.addEventListener("click", function () {
-      // Create a new Checkout Session using the server-side endpoint
-      // Redirect to Stripe Session Checkout
-      fetch("{% url 'buy_item' item.pk %}", { method: "GET" })
-        .then(function (response) {
-          return response.json();
-        })
-        .then(function (session) {
-          return stripe.redirectToCheckout({ sessionId: session.sessionId });
-        });
-    });
+  var stripe = Stripe("{{stripe_pub_key}}");
+  var buyButton = document.getElementById("buy-button");
+  buyButton.addEventListener("click", function () {
+    // Create a new Checkout Session using the server-side endpoint
+    // Redirect to Stripe Session Checkout
+    fetch("{% url 'buy_item' item.pk %}", { method: "GET" })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (session) {
+        return stripe.redirectToCheckout({ sessionId: session.sessionId });
+      });
+  });
   </script>
-{% endblock %}
+{% endblock content %}

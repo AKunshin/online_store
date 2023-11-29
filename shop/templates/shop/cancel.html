@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
 <div class="container text-center my-5">
     <div class="row">
@@ -8,7 +8,7 @@
             Очень жаль, что вы отказались от покупки.
             </p>
             <a
-            href="/"
+            href="{% url 'home' %}"
             class="btn btn-primary"
             title="Вернуться на главную"
             >На главную
@@ -16,4 +16,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock content %}

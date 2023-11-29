@@ -23,7 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = str(os.getenv('SECRET_KEY'))
+SECRET_KEY = str(
+    os.getenv('SECRET_KEY',
+              default='django-insecure-_dv2t*b^8l*wq5dq_n48+b(7e)55yn_&=zzry(%b22s#vj76cw',
+              )
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -131,5 +135,12 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-STRIPE_SECRET_KEY = str(os.getenv('STRIPE_SECRET_KEY'))
-STRIPE_PUBLISHABLE_KEY = str(os.getenv('STRIPE_PUBLISHABLE_KEY'))
+DOMAIN_URL = str(os.getenv('DOMAIN_URL', default='http://localhost:8000/'))
+
+STRIPE_SECRET_KEY = str(os.getenv('STRIPE_SECRET_KEY',
+                                  default='sk_test_51LjNT9Bs7ZepixRogVGitRHKTWQfv6mB6H9tTic3w7EogRUYTuAjvzn7MleHCMWfndqiV3T7sbSes8uApNzaep1e00Tj1JNXNL')
+                        )
+STRIPE_PUBLISHABLE_KEY = str(os.getenv('STRIPE_PUBLISHABLE_KEY',
+                                       default='pk_test_51LjNT9Bs7ZepixRoVSCgg0knKsIXEkB40DkCuCrGTpwm8eGS2zFbukccwYXkCFFalyk4kz1pGrRHQbTaMeEwMOC200j0I0yQwP'
+                                       )
+                             )
