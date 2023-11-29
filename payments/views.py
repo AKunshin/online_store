@@ -5,7 +5,7 @@ import stripe
 from django.http import JsonResponse
 from django.views.generic import DetailView, View, TemplateView, ListView
 from django.conf import settings
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 
 from shop.models import Item, Order
 from shop.forms import OrderForm
@@ -65,7 +65,7 @@ class ItemBuyView(View):
 
     def get(self, request, *args, **kwargs):
         item_id = self.kwargs["pk"]
-        item = Item.objects.get(pk=item_id)
+        item = get_object_or_404(Item, pk=item_id)
         try:
             checkout_session = stripe.checkout.Session.create(
                 success_url=domain_url + "success/",
@@ -122,7 +122,7 @@ class OrderPaymentView(TemplateView):
 
     def get_context_data(self, **kwargs):
         order_id = self.kwargs["pk"]
-        order = Order.objects.get(id=order_id)
+        order = get_object_or_404(Order, id=order_id)
         items = order.items.all()
         stripe_pub_key = settings.STRIPE_PUBLISHABLE_KEY
         context = super().get_context_data(**kwargs)
@@ -147,7 +147,7 @@ class StripeIntentView(View):
                 req_json = json.loads(request.body)
                 items = req_json["items"]
                 order_id = self.kwargs["pk"]
-                order = Order.objects.get(id=order_id)
+                order = get_object_or_404(Order, id=order_id)
 
                 intent = stripe.PaymentIntent.create(
                     amount=int(order.get_total_price * 100),
