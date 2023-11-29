@@ -1,4 +1,5 @@
 import json
+
 import stripe
 
 from django.http import JsonResponse
@@ -21,6 +22,7 @@ prices = stripe.Price.list()
 
 class AllItemsView(ListView):
     """Вывод списка товаров"""
+
     model = Item
     template_name = "shop/index.html"
     context_object_name = "items"
@@ -49,6 +51,7 @@ class OrderListView(ListView):
 
 class ItemView(DetailView):
     """Детальный просмотр товара"""
+
     model = Item
 
     def get_context_data(self, **kwargs):
@@ -68,16 +71,18 @@ class ItemBuyView(View):
                 success_url=domain_url + "success/",
                 cancel_url=domain_url + "cancel/",
                 mode="payment",
-                line_items=[{
-                    "price_data": {
-                        "currency": item.currency,
-                        "product_data": {
-                            "name": item.name,
+                line_items=[
+                    {
+                        "price_data": {
+                            "currency": item.currency,
+                            "product_data": {
+                                "name": item.name,
+                            },
+                            "unit_amount": int(item.price * 100),
                         },
-                        "unit_amount": int(item.price * 100),
-                    },
-                    "quantity": 1,
-                }],
+                        "quantity": 1,
+                    }
+                ],
                 allow_promotion_codes=True,
             )
         except Exception as e:
@@ -88,11 +93,13 @@ class ItemBuyView(View):
 
 class SuccessPayView(TemplateView):
     """Инфо страница об успешной покупке"""
+
     template_name = "shop/success.html"
 
 
 class CancelPayView(TemplateView):
     """Инфо страница об отказе от покупки"""
+
     template_name = "shop/cancel.html"
 
 
@@ -110,6 +117,7 @@ def add_to_order(request):
 
 class OrderPaymentView(TemplateView):
     """Страница оплаты заказа"""
+
     template_name = "shop/order_detail.html"
 
     def get_context_data(self, **kwargs):
@@ -118,13 +126,15 @@ class OrderPaymentView(TemplateView):
         items = order.items.all()
         stripe_pub_key = settings.STRIPE_PUBLISHABLE_KEY
         context = super().get_context_data(**kwargs)
-        context.update({
-            "items": items,
-            "order": order,
-            "clientSecret": stripe_pub_key,
-            "stripe_pub_key": stripe_pub_key,
-            "domain_url": domain_url
-        })
+        context.update(
+            {
+                "items": items,
+                "order": order,
+                "clientSecret": stripe_pub_key,
+                "stripe_pub_key": stripe_pub_key,
+                "domain_url": domain_url,
+            }
+        )
         return context
 
 
@@ -146,12 +156,8 @@ class StripeIntentView(View):
                         "enabled": True,
                     },
                     customer=customer["id"],
-                    metadata={
-                        "order_id": order.id
-                    }
+                    metadata={"order_id": order.id},
                 )
-                return JsonResponse({
-                    "clientSecret": intent["client_secret"]
-                })
+                return JsonResponse({"clientSecret": intent["client_secret"]})
             except Exception as e:
                 return JsonResponse({"error": str(e)})

@@ -11,16 +11,17 @@ class OrderForm(forms.ModelForm):
 
         widgets = {
             "items": forms.SelectMultiple(attrs={"class": "form-control"}),
-            "discounts": forms.TextInput(attrs={
-                "class": "form-control",
-                "placeholder": "Введите промокод...",
-            }),
+            "discounts": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Введите промокод...",
+                }
+            ),
         }
 
     def clean_discounts(self):
         data = self.cleaned_data["discounts"]
         if not Order.objects.filter(discounts=data):
             raise ValidationError("Промокод не найден")
-        
+
         return data
-    

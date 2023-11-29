@@ -5,4 +5,4 @@ from .models import Discount
 
 @admin.register(Discount)
 class DiscountAdmin(admin.ModelAdmin):
-    list_display = ['name', 'percent_off', 'duration']
+    list_display = ["name", "percent_off", "duration"]
