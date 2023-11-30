@@ -1,12 +1,10 @@
-import json
-
 import stripe
 
-from django.http import JsonResponse
 from django.views.generic import DetailView, View, TemplateView, ListView
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render, redirect
 
+from payments.service import create_payment_intent, create_stripe_checkout
 from shop.models import Item, Order
 from shop.forms import OrderForm
 
@@ -15,7 +13,6 @@ domain_url = settings.DOMAIN_URL
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
-customer = stripe.Customer.create()
 products = stripe.Product.list()
 prices = stripe.Price.list()
 
@@ -42,13 +39,6 @@ class AllItemsView(ListView):
         return Item.objects.all()
 
 
-class OrderListView(ListView):
-    model = Order
-    template_name = "shop/order_list.html"
-    context_object_name = "orders"
-    paginate_by = 4
-
-
 class ItemView(DetailView):
     """Детальный просмотр товара"""
 
@@ -63,32 +53,11 @@ class ItemView(DetailView):
 class ItemBuyView(View):
     """Создание сессии с Stripe для обработки покупки выбранного товара"""
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         item_id = self.kwargs["pk"]
         item = get_object_or_404(Item, pk=item_id)
-        try:
-            checkout_session = stripe.checkout.Session.create(
-                success_url=domain_url + "success/",
-                cancel_url=domain_url + "cancel/",
-                mode="payment",
-                line_items=[
-                    {
-                        "price_data": {
-                            "currency": item.currency,
-                            "product_data": {
-                                "name": item.name,
-                            },
-                            "unit_amount": int(item.price * 100),
-                        },
-                        "quantity": 1,
-                    }
-                ],
-                allow_promotion_codes=True,
-            )
-        except Exception as e:
-            return JsonResponse({"error": str(e)})
-
-        return JsonResponse({"sessionId": checkout_session["id"]})
+        response = create_stripe_checkout(item)
+        return response
 
 
 class SuccessPayView(TemplateView):
@@ -101,6 +70,13 @@ class CancelPayView(TemplateView):
     """Инфо страница об отказе от покупки"""
 
     template_name = "shop/cancel.html"
+
+
+class OrderListView(ListView):
+    model = Order
+    template_name = "shop/order_list.html"
+    context_object_name = "orders"
+    paginate_by = 4
 
 
 def add_to_order(request):
@@ -143,21 +119,7 @@ class StripeIntentView(View):
 
     def post(self, request, *args, **kwargs):
         if request.method == "POST":
-            try:
-                req_json = json.loads(request.body)
-                items = req_json["items"]
-                order_id = self.kwargs["pk"]
-                order = get_object_or_404(Order, id=order_id)
-
-                intent = stripe.PaymentIntent.create(
-                    amount=int(order.get_total_price * 100),
-                    currency="rub",
-                    automatic_payment_methods={
-                        "enabled": True,
-                    },
-                    customer=customer["id"],
-                    metadata={"order_id": order.id},
-                )
-                return JsonResponse({"clientSecret": intent["client_secret"]})
-            except Exception as e:
-                return JsonResponse({"error": str(e)})
+            order_id = self.kwargs["pk"]
+            order = get_object_or_404(Order, id=order_id)
+            response = create_payment_intent(order)
+        return response

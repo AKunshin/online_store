@@ -7,11 +7,17 @@ import pytz
 import stripe
 from bs4 import BeautifulSoup
 
+from django.http import JsonResponse
 from django.conf import settings
 from django.db.models import Sum
 
 
+domain_url = settings.DOMAIN_URL
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
+customer = stripe.Customer.create()
+products = stripe.Product.list()
+prices = stripe.Price.list()
 
 
 def get_current_date() -> str:
@@ -52,3 +58,47 @@ def get_total_price(items) -> Decimal:
     total_price = total_price_rub + total_price_usd
     total_price = Decimal(total_price).quantize(Decimal("1.00"))
     return total_price
+
+
+def create_stripe_checkout(item):
+    """Создание сессии stripe"""
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            success_url=domain_url + "success/",
+            cancel_url=domain_url + "cancel/",
+            mode="payment",
+            line_items=[
+                {
+                    "price_data": {
+                        "currency": item.currency,
+                        "product_data": {
+                            "name": item.name,
+                        },
+                        "unit_amount": int(item.price * 100),
+                    },
+                    "quantity": 1,
+                }
+            ],
+            allow_promotion_codes=True,
+        )
+    except Exception as e:
+        return JsonResponse({"error": str(e)})
+
+    return JsonResponse({"sessionId": checkout_session["id"]})
+
+
+def create_payment_intent(order):
+    """Создание stripe payment intent"""
+    try:
+        intent = stripe.PaymentIntent.create(
+            amount=int(order.get_total_price * 100),
+            currency="rub",
+            automatic_payment_methods={
+                "enabled": True,
+            },
+            customer=customer["id"],
+            metadata={"order_id": order.id},
+        )
+        return JsonResponse({"clientSecret": intent["client_secret"]})
+    except Exception as e:
+        return JsonResponse({"error": str(e)})
