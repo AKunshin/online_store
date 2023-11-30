@@ -65,10 +65,11 @@ curl -X GET http://localhost:8000/item/1
 # Опубликованное решение
 ------
 Решение опубликовано по адресу:
-
 ```
 http://reyiby1.pythonanywhere.com/
 ```
+![image](https://github.com/AKunshin/online_store/assets/108155374/9525bc9f-5fa2-422a-8cfd-a76667963b1e)
+
 
 Для входа в панель администратора, необходимо перейти по адресу:
 
