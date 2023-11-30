@@ -67,13 +67,13 @@ curl -X GET http://localhost:8000/item/1
 Решение опубликовано по адресу:
 
 ```
-http://reyiby.pythonanywhere.com/
+http://reyiby1.pythonanywhere.com/
 ```
 
 Для входа в панель администратора, необходимо перейти по адресу:
 
 ```
-http://reyiby.pythonanywhere.com/admin/
+http://reyiby1.pythonanywhere.com/admin/
 ```
 
 Учетные данные для входа:
