@@ -1,15 +1,16 @@
 from django.urls import path, include
 
-from rest_framework.routers import SimpleRouter
+from rest_framework.routers import DefaultRouter
 
-from .views import ItemViewSet, api_create_payment_intent
+from .views import ItemViewSet, api_create_payment_intent, ItemDetailView
 
 
-router = SimpleRouter()
+router = DefaultRouter()
 
-router.register(r"item", ItemViewSet)
+router.register(r"items", ItemViewSet)
 
 urlpatterns = [
+    path("item-detail/<int:pk>", ItemDetailView.as_view(), name="item-for-buy"),
     path(
         "create_payment_intent/<int:pk>/",
         api_create_payment_intent,
