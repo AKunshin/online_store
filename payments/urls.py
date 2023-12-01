@@ -11,7 +11,7 @@ from payments.views import (
     OrderPaymentView,
     StripeIntentView,
 )
-
+from payments.webhooks import stripe_webhook
 
 urlpatterns = [
     path("", AllItemsView.as_view(), name="home"),
@@ -22,6 +22,7 @@ urlpatterns = [
     path("orders/", OrderListView.as_view(), name="orders_list"),
     path("add_to_order/", add_to_order, name="add_to_order"),
     path("order/<int:pk>/", OrderPaymentView.as_view(), name="view_order"),
+    path("webhooks/", stripe_webhook, name="stripe-webhook"),
     path(
         "create-payment-intent/<int:pk>/",
         StripeIntentView.as_view(),
