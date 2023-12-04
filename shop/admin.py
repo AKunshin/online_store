@@ -10,4 +10,4 @@ class ItemAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class Order(admin.ModelAdmin):
-    list_display = ["id", "get_total_price", "paid", "stripe_id"]
+    list_display = ["id", "get_total_price"]

@@ -56,8 +56,6 @@ class Order(models.Model):
         blank=True,
         verbose_name="Скидка",
     )
-    paid = models.BooleanField(null=True, blank=True, default=False, verbose_name="Заказ оплачен")
-    stripe_id = models.CharField(max_length=250, blank=True)
 
     @property
     def get_total_price(self) -> Decimal:
