@@ -7,15 +7,15 @@ from .models import Order
 class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ["items", "discounts"]
-
+        fields = ("items", "discounts")
         widgets = {
             "items": forms.SelectMultiple(attrs={"class": "form-control"}),
             "discounts": forms.TextInput(
                 attrs={
                     "class": "form-control",
                     "placeholder": "Введите промокод...",
-                }
+                    "default": None,
+                },
             ),
         }
 
