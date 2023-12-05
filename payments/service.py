@@ -79,6 +79,7 @@ def create_stripe_checkout(item):
                     "quantity": 1,
                 }
             ],
+            tax_id_collection={"enabled": True},
             allow_promotion_codes=True,
         )
     except Exception as e:

@@ -12,7 +12,6 @@ from payments.views import (
     StripeIntentView,
 )
 
-
 urlpatterns = [
     path("", AllItemsView.as_view(), name="home"),
     path("item/<int:pk>", ItemView.as_view(), name="view_item"),
