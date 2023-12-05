@@ -9,12 +9,12 @@ class OrderForm(forms.ModelForm):
     discounts = forms.CharField(
         max_length=20,
         required=False,
+        empty_value=None,
         label="Промокод",
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
                 "placeholder": "Введите промокод...",
-                "default": None,
             },
         ),
     )
@@ -29,8 +29,11 @@ class OrderForm(forms.ModelForm):
     def clean_discounts(self):
         discounts = self.cleaned_data.get("discounts")
 
-        if not Discount.objects.filter(name=discounts) and discounts != None:
+        if discounts is None:
+            return discounts
+        try:
+            discounts = Discount.objects.get(name=discounts)
+        except Discount.DoesNotExist:
             raise ValidationError("Промокод не найден")
-        discounts = Discount.objects.get(name=discounts)
 
         return discounts
