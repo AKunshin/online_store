@@ -3,6 +3,7 @@ import stripe
 from django.views.generic import DetailView, View, TemplateView, ListView
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render, redirect
+from payments.models import Discount
 
 from payments.service import create_payment_intent, create_stripe_checkout
 from shop.models import Item, Order
